@@ -9,7 +9,6 @@ The goal of this pipeline is to extract alarm data related to sub-equipment from
 - **Source:** Cloud SQL Database (CareAlarm)
 - **Destination:** BigQuery Table (`CoreAnalyticsTool.subequipment_alarms`)
 - **Execution Environment:**
-  - Designed for execution inside Google Cloud VM
   - Local execution allowed only for testing (BigQuery write disabled locally)
 
 ---
@@ -17,20 +16,23 @@ The goal of this pipeline is to extract alarm data related to sub-equipment from
 ## 3. Pipeline Steps
 
 ### Step 1: Initialization
-- Logger setup using `GCPLogSession`.
 - Get sure that you are connected to the good proxy
-  ```Windows Powershell
--   .\cloud_sql_proxy.exe data-244201:europe-west2:production --port=3307
   ```
+  .\cloud_sql_proxy.exe data-244201:europe-west2:production --port=3307
+  ```
+- Logger setup using `GCPLogSession`.
 - Load DB configuration from the `config/` folder.
 
 ### Step 2: Data Extraction
-- Connect to SQL via `initiate_db`.
-- Execute query using `DataCloudSqlIO`:
-  ```python
-  connector.query_subequipment_alarms(crt=None)
-  ```
-- Load results into a Pandas DataFrame.
+- Lauch the file "Carealarm_ETL.py"
+- Will in part :
+    - Connect to SQL via `initiate_db`.
+    - Execute query using `DataCloudSqlIO`:
+      ```
+      connector.query_subequipment_alarms(crt=None)
+      ```
+  - Load results into a Pandas DataFrame.
+
 
 ### Step 3: Data Validation
 - Verify that data was extracted:
@@ -38,7 +40,7 @@ The goal of this pipeline is to extract alarm data related to sub-equipment from
   if len(df) > 0:
   ```
 - Preview data and log extracted row count.
-
+![{3DF84372-05BA-461D-8167-743BA75D15BD}](https://github.com/user-attachments/assets/b946f9d1-bd8e-4a39-ad48-aaca399ff9a1)
 ### Step 4: BigQuery Export
 - Export data to BigQuery using:
   ```python
@@ -49,37 +51,26 @@ The goal of this pipeline is to extract alarm data related to sub-equipment from
   cat_core/bq_tables/schemas/CoreAnalyticsTool/subequipment/
   ```
 - Write operation restricted to GCP environments using `is_running_on_gcp()`.
+- You will get where the data has been extracted showing the project_id and the destination table
 
 ---
 
 ## 4. Folder Structure
 ```
-/ASulpr_nom
-│
-├── Carealarm_ETL.py               # Main ETL script
-├── dataa.py                       # SQL query logic
-├── config/                        # DB config files
-├── log_config/                    # Logging configuration
-├── bq_tables/                     # BigQuery table schemas
-│   └── schemas/CoreAnalyticsTool/subequipment/*.json
+/Test_subequipment_alarms[test_subequipment_alarms]
+ 
+ ── Carealarm_ETL.py               # Main ETL script
+ ── dataa.py                       # SQL query logic
+ ── config/                        # DB config files
+ ── log_config/                    # Logging configuration
+ ── bq_tables/                     # BigQuery table schemas
+    ── schemas/CoreAnalyticsTool/subequipment/*.json
 ```
 
 ---
 
-## 5. Error Handling & Logging
-- Managed via `GCPLogSession`.
-- Logged events:
-  - `init_session_logging`
-  - `success_bigquery_insert`
-  - `error_bigquery_insert`
-  - `table_not_found`
-  - `wrong_query`
-  - `wrong_dataset`
-
----
-
-## 6. Notes
-- **BigQuery Write Restriction:** Writing to BigQuery is only allowed inside GCP VMs.
+## 5. Notes
+- **BigQuery Write Restriction:** Writing to BigQuery is only allowed inside GCP VMs. Make sure to put comments on the code just to resend data to BigQuery
 - **Schema Control:** DataFrame columns must align with the schema defined in the corresponding JSON schema file.
 
 ---
