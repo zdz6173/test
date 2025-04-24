@@ -18,7 +18,10 @@ The goal of this pipeline is to extract alarm data related to sub-equipment from
 
 ### Step 1: Initialization
 - Logger setup using `GCPLogSession`.
-- Check VM environment using `change_directory_inside_vm()`.
+- Get sure that you are connected to the good proxy
+  ```Windows Powershell
+-   .\cloud_sql_proxy.exe data-244201:europe-west2:production --port=3307
+  ```
 - Load DB configuration from the `config/` folder.
 
 ### Step 2: Data Extraction
